@@ -1,12 +1,13 @@
 {
-  "name": "hardhat-ts-plugin-boilerplate",
+  "name": "@medga/hardhat-clone",
   "version": "0.0.1",
-  "description": "Hardhat TypeScript plugin boilerplate",
+  "description": "Clone an on-chain contract into Hardhat project",
   "repository": "github:nomiclabs/hardhat-ts-plugin-boilerplate",
-  "author": "Nomic Labs LLC",
+  "author": "MEDGA Team",
   "license": "MIT",
   "main": "dist/src/index.js",
   "types": "dist/src/index.d.ts",
+  "type": "module",
   "keywords": [
     "ethereum",
     "smart-contracts",
@@ -14,12 +15,10 @@
     "hardhat-plugin"
   ],
   "scripts": {
-    "lint:fix": "prettier --write 'src/**/*.{js,ts}' 'test/**/*.{js,ts}' && tslint --fix --config tslint.json --project tsconfig.json",
-    "lint": "tslint --config tslint.json --project tsconfig.json",
-    "test": "mocha --exit --recursive 'test/**/*.test.ts'",
+    "lint:fix": "prettier --write 'src/**/*.{js,ts}' 'test/**/*.{js,ts}'",
+    "lint": "eslint .",
     "build": "tsc",
-    "watch": "tsc -w",
-    "prepublishOnly": "npm run build"
+    "watch": "tsc -w"
   },
   "files": [
     "dist/src/",
@@ -28,21 +27,23 @@
     "README.md"
   ],
   "devDependencies": {
-    "@types/chai": "^4.1.7",
+    "@eslint/js": "^9.5.0",
+    "@types/chai": "^4.3.16",
+    "@types/eslint__js": "^8.42.3",
     "@types/fs-extra": "^5.0.4",
     "@types/mocha": "^5.2.6",
     "@types/node": "^8.10.38",
     "chai": "^4.2.0",
+    "eslint": "^9.5.0",
     "hardhat": "^2.0.0",
     "mocha": "^7.1.2",
     "prettier": "2.0.5",
     "ts-node": "^8.1.0",
-    "tslint": "^5.16.0",
-    "tslint-config-prettier": "^1.18.0",
-    "tslint-plugin-prettier": "^2.0.1",
-    "typescript": "^4.0.3"
+    "typescript": "^4.9.5",
+    "typescript-eslint": "^7.13.1"
   },
   "peerDependencies": {
     "hardhat": "^2.0.0"
-  }
+  },
+  "packageManager": "pnpm@8.15.6+sha1.8105075ad0aa306138be128c017e9c41e28ecffa"
 }

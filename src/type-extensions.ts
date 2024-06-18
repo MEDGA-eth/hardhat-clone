@@ -22,7 +22,7 @@ declare module "hardhat/types/config" {
   // default values using the extendConfig function.
   export interface ProjectPathsConfig {
     newPath: string;
-  }
+    }
 }
 
 declare module "hardhat/types/runtime" {
