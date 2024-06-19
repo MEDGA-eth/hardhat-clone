@@ -1,12 +1,56 @@
-import { extendConfig, extendEnvironment } from "hardhat/config";
-import { lazyObject } from "hardhat/plugins";
-import { HardhatConfig, HardhatUserConfig } from "hardhat/types";
-import path from "path";
+import { extendConfig, extendEnvironment, task } from 'hardhat/config';
+import { lazyObject } from 'hardhat/plugins';
+import { HardhatConfig, HardhatUserConfig } from 'hardhat/types';
+import path from 'path';
+import * as types from './types';
+import { cloneContract } from './clone';
 
-import { ExampleHardhatRuntimeEnvironmentField } from "./ExampleHardhatRuntimeEnvironmentField";
+import { ExampleHardhatRuntimeEnvironmentField } from './ExampleHardhatRuntimeEnvironmentField';
 // This import is needed to let the TypeScript compiler know that it should include your type
 // extensions in your npm package's types file.
-import "./type-extensions";
+import './type-extensions';
+import {
+  ChainDeclaration,
+  getChainDeclaration,
+  getSupportedChainListString,
+} from './chain';
+
+task('clone', 'Clone on-chain contract into current Hardhat project')
+  .addOptionalParam(
+    'chain',
+    `The chain ID or name where the contract is deployed. Supported: ${getSupportedChainListString()}`,
+    1,
+    types.chain,
+  )
+  .addOptionalParam(
+    'etherscanApiKey',
+    'The Etherscan API key (or equivalent) to use to fetch the contract',
+  )
+  .addFlag('quiet', 'Do not log anything')
+  .addPositionalParam(
+    'address',
+    'The address of the contract to clone',
+    undefined,
+    types.address,
+    false,
+  )
+  .addOptionalPositionalParam(
+    'destination',
+    'The path (relative to `contracts` folder of this project) where the contract should be cloned',
+    '.',
+    types.relativePath,
+  )
+  .setAction(async (args, hre) => {
+    // eslint-disable-next-line prefer-const
+    let { address, destination, chain, etherscanApiKey, quiet } = args;
+    if (!(chain instanceof ChainDeclaration))
+      chain = getChainDeclaration(chain);
+
+    cloneContract(hre, chain, address, destination, {
+      apiKey: etherscanApiKey,
+      quiet,
+    });
+  });
 
 extendConfig(
   (config: HardhatConfig, userConfig: Readonly<HardhatUserConfig>) => {
@@ -26,7 +70,7 @@ extendConfig(
 
     let newPath: string;
     if (userPath === undefined) {
-      newPath = path.join(config.paths.root, "newPath");
+      newPath = path.join(config.paths.root, 'newPath');
     } else {
       if (path.isAbsolute(userPath)) {
         newPath = userPath;
@@ -38,7 +82,7 @@ extendConfig(
     }
 
     config.paths.newPath = newPath;
-  }
+  },
 );
 
 extendEnvironment((hre) => {

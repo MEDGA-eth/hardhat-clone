@@ -5,9 +5,9 @@
   "repository": "github:nomiclabs/hardhat-ts-plugin-boilerplate",
   "author": "MEDGA Team",
   "license": "MIT",
-  "main": "dist/src/index.js",
-  "types": "dist/src/index.d.ts",
-  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "type": "commonjs",
   "keywords": [
     "ethereum",
     "smart-contracts",
@@ -15,7 +15,7 @@
     "hardhat-plugin"
   ],
   "scripts": {
-    "lint:fix": "prettier --write 'src/**/*.{js,ts}' 'test/**/*.{js,ts}'",
+    "lint:fix": "prettier --write 'src/**/*.{js,ts}' 'test/**/*.{js,ts}' && eslint --fix .",
     "lint": "eslint .",
     "build": "tsc",
     "watch": "tsc -w"
@@ -32,8 +32,8 @@
     "@types/eslint__js": "^8.42.3",
     "@types/fs-extra": "^5.0.4",
     "@types/jest": "^29.5.12",
-    "@types/node": "^20.14.5",
-    "eslint": "^9.5.0",
+    "@types/node": "^18.15.13",
+    "eslint": "^8.56.0",
     "hardhat": "^2.0.0",
     "jest": "^29.7.0",
     "prettier": "2.0.5",
@@ -44,5 +44,14 @@
   "peerDependencies": {
     "hardhat": "^2.0.0"
   },
-  "packageManager": "pnpm@8.15.6+sha1.8105075ad0aa306138be128c017e9c41e28ecffa"
+  "packageManager": "pnpm@8.15.6+sha1.8105075ad0aa306138be128c017e9c41e28ecffa",
+  "dependencies": {
+    "ethers": "^6.13.1"
+  },
+  "prettier": {
+    "semi": true,
+    "singleQuote": true,
+    "tabWidth": 2,
+    "trailingComma": "all"
+  }
 }
