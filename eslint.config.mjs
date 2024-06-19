@@ -14,4 +14,7 @@ export default
     eslint.configs.recommended,
     ...tseslint.configs.recommended,
     includeIgnoreFile(gitignorePath),
+    {
+      ignores: ["dist/**/*"],
+    }
   );
