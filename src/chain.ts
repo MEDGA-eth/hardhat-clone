@@ -1,37 +1,19 @@
+import { Network } from 'ethers';
 import { URL } from 'url';
 
-export class ChainDeclaration {
-  constructor(
-    public chainId: number,
-    public name: string,
-    public etherscanUrl: URL,
-  ) {}
+export const supportedNetworks: Network[] = [
+  Network.from('mainnet'),
+];
 
-  public toString(): string {
-    return `${this.chainId}:${this.name}`;
-  }
-}
-
-export const MAINNET = new ChainDeclaration(
-  1,
-  'mainnet',
-  new URL('https://etherscan.io'),
-);
-
-export const chains: ChainDeclaration[] = [MAINNET];
-
-export function getChainDeclaration(chainId: number): ChainDeclaration;
-export function getChainDeclaration(name: string): ChainDeclaration;
-export function getChainDeclaration(
+export function findNetwork(chainId: number): Network;
+export function findNetwork(name: string): Network;
+export function findNetwork(
   chainIdOrName: number | string,
-): ChainDeclaration | undefined {
+): Network | undefined {
   if (typeof chainIdOrName === 'number') {
-    return chains.find((chain) => chain.chainId === chainIdOrName);
+    return supportedNetworks.find((chain) => chain.chainId === BigInt(chainIdOrName));
   } else {
-    return chains.find((chain) => chain.name === chainIdOrName);
+    return supportedNetworks.find((chain) => chain.name === chainIdOrName);
   }
 }
 
-export function getSupportedChainListString(): string {
-  return chains.map((chain) => chain.toString()).join(', ');
-}

@@ -1,8 +1,8 @@
-import { isAddress } from 'ethers';
+import { Network, isAddress } from 'ethers';
 import { CLIArgumentType } from 'hardhat/types';
 import { types } from 'hardhat/config';
 import pathlib from 'node:path';
-import { ChainDeclaration, getChainDeclaration } from './chain';
+import { findNetwork } from './chain';
 
 export const address: CLIArgumentType<string> = {
   parse: (_argName, strValue) => {
@@ -29,14 +29,14 @@ export const relativePath: CLIArgumentType<string> = {
   },
 };
 
-export const chain: CLIArgumentType<ChainDeclaration> = {
+export const chain: CLIArgumentType<Network> = {
   parse: (_argName, strValue) => {
     let chain;
     try {
       const chainId = parseInt(strValue);
-      chain = getChainDeclaration(chainId);
+      chain = findNetwork(chainId);
     } catch (_) {
-      chain = getChainDeclaration(strValue);
+      chain = findNetwork(strValue);
     }
     if (chain === undefined) {
       throw new Error(`Unsupported chain: ${strValue}`);
@@ -44,7 +44,7 @@ export const chain: CLIArgumentType<ChainDeclaration> = {
     return chain;
   },
   name: 'chain',
-  validate: () => {},
+  validate: () => { },
 };
 
 export const string = types.string;

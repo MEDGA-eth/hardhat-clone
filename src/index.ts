@@ -10,15 +10,15 @@ import { ExampleHardhatRuntimeEnvironmentField } from './ExampleHardhatRuntimeEn
 // extensions in your npm package's types file.
 import './type-extensions';
 import {
-  ChainDeclaration,
-  getChainDeclaration,
-  getSupportedChainListString,
+  findNetwork,
+  supportedNetworks,
 } from './chain';
+import { Network } from 'ethers';
 
 task('clone', 'Clone on-chain contract into current Hardhat project')
   .addOptionalParam(
     'chain',
-    `The chain ID or name where the contract is deployed. Supported: ${getSupportedChainListString()}`,
+    `The chain ID or name where the contract is deployed. Supported: ${supportedNetworks.map((chain) => chain.toString()).join(', ')}`,
     1,
     types.chain,
   )
@@ -43,51 +43,46 @@ task('clone', 'Clone on-chain contract into current Hardhat project')
   .setAction(async (args, hre) => {
     // eslint-disable-next-line prefer-const
     let { address, destination, chain, etherscanApiKey, quiet } = args;
-    if (!(chain instanceof ChainDeclaration))
-      chain = getChainDeclaration(chain);
+    if (!(chain instanceof Network))
+      chain = findNetwork(chain);
 
     cloneContract(hre, chain, address, destination, {
       apiKey: etherscanApiKey,
       quiet,
     });
+
   });
 
-extendConfig(
-  (config: HardhatConfig, userConfig: Readonly<HardhatUserConfig>) => {
-    // We apply our default config here. Any other kind of config resolution
-    // or normalization should be placed here.
-    //
-    // `config` is the resolved config, which will be used during runtime and
-    // you should modify.
-    // `userConfig` is the config as provided by the user. You should not modify
-    // it.
-    //
-    // If you extended the `HardhatConfig` type, you need to make sure that
-    // executing this function ensures that the `config` object is in a valid
-    // state for its type, including its extensions. For example, you may
-    // need to apply a default value, like in this example.
-    const userPath = userConfig.paths?.newPath;
+// extendConfig(
+//   (config: HardhatConfig, userConfig: Readonly<HardhatUserConfig>) => {
+//     // We apply our default config here. Any other kind of config resolution
+//     // or normalization should be placed here.
+//     //
+//     // `config` is the resolved config, which will be used during runtime and
+//     // you should modify.
+//     // `userConfig` is the config as provided by the user. You should not modify
+//     // it.
+//     //
+//     // If you extended the `HardhatConfig` type, you need to make sure that
+//     // executing this function ensures that the `config` object is in a valid
+//     // state for its type, including its extensions. For example, you may
+//     // need to apply a default value, like in this example.
+//     const userPath = userConfig.paths?.newPath;
 
-    let newPath: string;
-    if (userPath === undefined) {
-      newPath = path.join(config.paths.root, 'newPath');
-    } else {
-      if (path.isAbsolute(userPath)) {
-        newPath = userPath;
-      } else {
-        // We resolve relative paths starting from the project's root.
-        // Please keep this convention to avoid confusion.
-        newPath = path.normalize(path.join(config.paths.root, userPath));
-      }
-    }
+//     let newPath: string;
+//     if (userPath === undefined) {
+//       newPath = path.join(config.paths.root, 'newPath');
+//     } else {
+//       if (path.isAbsolute(userPath)) {
+//         newPath = userPath;
+//       } else {
+//         // We resolve relative paths starting from the project's root.
+//         // Please keep this convention to avoid confusion.
+//         newPath = path.normalize(path.join(config.paths.root, userPath));
+//       }
+//     }
 
-    config.paths.newPath = newPath;
-  },
-);
+//     config.paths.newPath = newPath;
+//   },
+// );
 
-extendEnvironment((hre) => {
-  // We add a field to the Hardhat Runtime Environment here.
-  // We use lazyObject to avoid initializing things until they are actually
-  // needed.
-  hre.example = lazyObject(() => new ExampleHardhatRuntimeEnvironmentField());
-});
