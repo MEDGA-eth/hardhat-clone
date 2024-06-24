@@ -2,6 +2,7 @@ import { Expose, Transform } from 'class-transformer';
 import {
   IsDataURI,
   IsEthereumAddress,
+  IsHash,
   IsHexadecimal,
   IsInt,
   IsJSON,
@@ -12,8 +13,8 @@ import {
   Min,
 } from 'class-validator';
 import { assert } from 'console';
-import { AddressLike, BytesLike, InterfaceAbi } from 'ethers';
 import { CompilerInput } from 'hardhat/types';
+import { Abi, Address, ByteArray } from 'viem';
 
 /**
  * The contract metadata returned by Etherscan getsourcecode API.
@@ -33,7 +34,8 @@ export class Metadata {
   @IsString()
   @IsJSON()
   @Expose({ name: 'ABI' })
-  abi!: InterfaceAbi;
+  @Transform(({ value }) => JSON.parse(value))
+  abi!: Abi;
 
   /**
    * The name of the contract.
@@ -74,7 +76,8 @@ export class Metadata {
   @IsString()
   @IsHexadecimal()
   @Expose({ name: 'ConstructorArguments' })
-  constructorArguments!: BytesLike;
+  @Transform(({ value }) => Buffer.from(value, 'hex'))
+  constructorArguments!: ByteArray;
 
   /**
    * The version of the EVM the contract was deployed in. Can be either a variant of EvmVersion or "Default" which indicates the compiler's default.
@@ -112,7 +115,7 @@ export class Metadata {
   @IsString()
   @IsEthereumAddress()
   @Expose({ name: 'Implementation' })
-  implementation?: AddressLike;
+  implementation?: Address;
 
   /**
    * The swarm source of the contract.
@@ -170,4 +173,27 @@ export class Metadata {
 
     return compilerInput;
   }
+}
+
+export class Creation {
+  /**
+   * The address of the contract.
+   */
+  @IsString()
+  @IsEthereumAddress()
+  contractAddress!: string;
+
+  /**
+   * The address of the creator of the contract.
+   */
+  @IsString()
+  @IsEthereumAddress()
+  contractCreator!: string;
+
+  /**
+   * The transaction hash of the contract creation.
+   */
+  @IsString()
+  @IsHash('sha256')
+  txHash!: string;
 }

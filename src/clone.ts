@@ -1,8 +1,8 @@
 import path from 'path';
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
-import { EtherscanProvider, Network } from 'ethers';
-import { EtherscanConfig } from './source';
+import { EtherscanConfig } from './etherscan';
 import { getSource } from './etherscan';
+import { Address, Chain } from 'viem';
 /**
  * Clone a contract from a chain into the current project.
  *
@@ -14,8 +14,8 @@ import { getSource } from './etherscan';
  */
 export async function cloneContract(
   hre: HardhatRuntimeEnvironment,
-  chain: Network,
-  address: string,
+  chain: Chain,
+  address: Address,
   destination: string,
   opts: {
     apiKey?: string;
@@ -47,13 +47,11 @@ export async function cloneContract(
     }
   }
 
-  // create EtherscanProvider
-  console.debug('Creating EtherscanProvider for', chain.toString());
+  // check API KEY
   !apiKey && console.debug('No API key provided');
-  const provider = new EtherscanProvider(chain, apiKey);
 
   // fetch source from Etherscan
   console.debug('Fetching source code for', address);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const source = await getSource(provider, address);
+  const source = await getSource(chain, address, apiKey);
 }

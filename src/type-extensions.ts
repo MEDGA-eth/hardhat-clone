@@ -2,7 +2,7 @@
 // ( https://github.com/NomicFoundation/hardhat/blob/master/packages/hardhat-etherscan )
 import 'hardhat/types/config';
 
-import { EtherscanConfig } from './source';
+import { EtherscanConfig } from './etherscan';
 
 declare module 'hardhat/types/config' {
   interface HardhatUserConfig {

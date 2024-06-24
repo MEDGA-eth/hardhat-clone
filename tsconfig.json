@@ -13,6 +13,7 @@
     "esModuleInterop": true,
     "moduleResolution": "Node",
     "experimentalDecorators": true,
+    "skipLibCheck": true,
     "types": [
       "jest",
       "node"

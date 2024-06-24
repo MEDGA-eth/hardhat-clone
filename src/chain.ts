@@ -1,17 +1,14 @@
-import { Network } from 'ethers';
+import { Chain } from 'viem';
+import { mainnet } from 'viem/chains';
 
-export const supportedNetworks: Network[] = [Network.from('mainnet')];
+export const supportedChains: Chain[] = [mainnet];
 
-export function findNetwork(chainId: number): Network;
-export function findNetwork(name: string): Network;
-export function findNetwork(
-  chainIdOrName: number | string,
-): Network | undefined {
-  if (typeof chainIdOrName === 'number') {
-    return supportedNetworks.find(
-      (chain) => chain.chainId === BigInt(chainIdOrName),
-    );
-  } else {
-    return supportedNetworks.find((chain) => chain.name === chainIdOrName);
-  }
+/**
+ * Find a chain by its ID.
+ *
+ * @param chainId chain ID
+ * @returns Chain object
+ */
+export function findChain(chainId: number): Chain | undefined {
+  return supportedChains.find((chain) => chain.id === chainId);
 }

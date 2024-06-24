@@ -5,13 +5,12 @@ import { cloneContract } from './clone';
 // This import is needed to let the TypeScript compiler know that it should include your type
 // extensions in your npm package's types file.
 import './type-extensions';
-import { findNetwork, supportedNetworks } from './chain';
-import { Network } from 'ethers';
+import { findChain, supportedChains } from './chain';
 
 task('clone', 'Clone on-chain contract into current Hardhat project')
   .addOptionalParam(
     'chain',
-    `The chain ID or name where the contract is deployed. Supported: ${supportedNetworks
+    `The chain ID where the contract is deployed. Supported: ${supportedChains
       .map((chain) => chain.toString())
       .join(', ')}`,
     1,
@@ -38,7 +37,7 @@ task('clone', 'Clone on-chain contract into current Hardhat project')
   .setAction(async (args, hre) => {
     // eslint-disable-next-line prefer-const
     let { address, destination, chain, etherscanApiKey, quiet } = args;
-    if (!(chain instanceof Network)) chain = findNetwork(chain);
+    if (!(chain instanceof Object)) chain = findChain(chain);
 
     cloneContract(hre, chain, address, destination, {
       apiKey: etherscanApiKey,
