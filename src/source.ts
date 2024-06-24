@@ -1,5 +1,3 @@
-import { Network } from "ethers";
-
 // Interfaces for extended Hardhat configuration
 // We only need an API Key
 export interface EtherscanConfig {

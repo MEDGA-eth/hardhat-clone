@@ -1,24 +1,19 @@
-import { extendConfig, extendEnvironment, task } from 'hardhat/config';
-import { lazyObject } from 'hardhat/plugins';
-import { HardhatConfig, HardhatUserConfig } from 'hardhat/types';
-import path from 'path';
+import { task } from 'hardhat/config';
 import * as types from './types';
 import { cloneContract } from './clone';
 
-import { ExampleHardhatRuntimeEnvironmentField } from './ExampleHardhatRuntimeEnvironmentField';
 // This import is needed to let the TypeScript compiler know that it should include your type
 // extensions in your npm package's types file.
 import './type-extensions';
-import {
-  findNetwork,
-  supportedNetworks,
-} from './chain';
+import { findNetwork, supportedNetworks } from './chain';
 import { Network } from 'ethers';
 
 task('clone', 'Clone on-chain contract into current Hardhat project')
   .addOptionalParam(
     'chain',
-    `The chain ID or name where the contract is deployed. Supported: ${supportedNetworks.map((chain) => chain.toString()).join(', ')}`,
+    `The chain ID or name where the contract is deployed. Supported: ${supportedNetworks
+      .map((chain) => chain.toString())
+      .join(', ')}`,
     1,
     types.chain,
   )
@@ -43,14 +38,12 @@ task('clone', 'Clone on-chain contract into current Hardhat project')
   .setAction(async (args, hre) => {
     // eslint-disable-next-line prefer-const
     let { address, destination, chain, etherscanApiKey, quiet } = args;
-    if (!(chain instanceof Network))
-      chain = findNetwork(chain);
+    if (!(chain instanceof Network)) chain = findNetwork(chain);
 
     cloneContract(hre, chain, address, destination, {
       apiKey: etherscanApiKey,
       quiet,
     });
-
   });
 
 // extendConfig(
@@ -85,4 +78,3 @@ task('clone', 'Clone on-chain contract into current Hardhat project')
 //     config.paths.newPath = newPath;
 //   },
 // );
-

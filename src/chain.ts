@@ -1,9 +1,6 @@
 import { Network } from 'ethers';
-import { URL } from 'url';
 
-export const supportedNetworks: Network[] = [
-  Network.from('mainnet'),
-];
+export const supportedNetworks: Network[] = [Network.from('mainnet')];
 
 export function findNetwork(chainId: number): Network;
 export function findNetwork(name: string): Network;
@@ -11,9 +8,10 @@ export function findNetwork(
   chainIdOrName: number | string,
 ): Network | undefined {
   if (typeof chainIdOrName === 'number') {
-    return supportedNetworks.find((chain) => chain.chainId === BigInt(chainIdOrName));
+    return supportedNetworks.find(
+      (chain) => chain.chainId === BigInt(chainIdOrName),
+    );
   } else {
     return supportedNetworks.find((chain) => chain.name === chainIdOrName);
   }
 }
-

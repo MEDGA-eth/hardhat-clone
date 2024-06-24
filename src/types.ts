@@ -44,7 +44,7 @@ export const chain: CLIArgumentType<Network> = {
     return chain;
   },
   name: 'chain',
-  validate: () => { },
+  validate: () => {},
 };
 
 export const string = types.string;

@@ -2,6 +2,7 @@ import path from 'path';
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
 import { EtherscanProvider, Network } from 'ethers';
 import { EtherscanConfig } from './source';
+import { getSource } from './etherscan';
 /**
  * Clone a contract from a chain into the current project.
  *
@@ -11,7 +12,7 @@ import { EtherscanConfig } from './source';
  * @param destination The path (relative to `contracts` folder of this project) where the contract should be cloned.
  * @param opts Some other options.
  */
-export function cloneContract(
+export async function cloneContract(
   hre: HardhatRuntimeEnvironment,
   chain: Network,
   address: string,
@@ -53,4 +54,6 @@ export function cloneContract(
 
   // fetch source from Etherscan
   console.debug('Fetching source code for', address);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const source = await getSource(provider, address);
 }

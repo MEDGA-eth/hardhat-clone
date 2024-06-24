@@ -12,8 +12,10 @@
     ],
     "esModuleInterop": true,
     "moduleResolution": "Node",
-    "typeRoots": [
-      "./types"
+    "experimentalDecorators": true,
+    "types": [
+      "jest",
+      "node"
     ]
   },
   "exclude": [
