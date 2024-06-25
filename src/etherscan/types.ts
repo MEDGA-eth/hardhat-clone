@@ -15,6 +15,7 @@ import {
 import { assert } from 'console';
 import { CompilerInput } from 'hardhat/types';
 import { Abi, Address, ByteArray } from 'viem';
+import { SourceTree, SourceTreeEntry } from '../source/tree';
 
 /**
  * The contract metadata returned by Etherscan getsourcecode API.
@@ -172,6 +173,17 @@ export class Metadata {
     }
 
     return compilerInput;
+  }
+
+  /**
+   * Get the source tree from the contract metadata.
+   */
+  get sourceTree(): SourceTree {
+    const compilerInput = this.compilerInput;
+    const entries = Object.entries(compilerInput.sources).map(
+      ([path, content]) => new SourceTreeEntry(path, content.content),
+    );
+    return new SourceTree(...entries);
   }
 }
 

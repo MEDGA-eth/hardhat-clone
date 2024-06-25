@@ -1,7 +1,7 @@
-import path from 'path';
+import path from 'node:path';
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
 import { EtherscanConfig } from './etherscan';
-import { getSource } from './etherscan';
+import { getSource as getSourceMetadata } from './etherscan';
 import { Address, Chain } from 'viem';
 /**
  * Clone a contract from a chain into the current project.
@@ -31,7 +31,7 @@ export async function cloneContract(
       'Cloning contract at address',
       address,
       'from',
-      chain.toString(),
+      chain.name,
       'to',
       destination,
     );
@@ -52,6 +52,12 @@ export async function cloneContract(
 
   // fetch source from Etherscan
   console.debug('Fetching source code for', address);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const source = await getSource(chain, address, apiKey);
+  const source_meta = await getSourceMetadata(chain, address, apiKey);
+
+  // dump source code
+  console.debug('Dumping source code to', destination);
+  const source_tree = source_meta.sourceTree;
+  console.log(source_tree);
+  source_tree.dump(destination);
+  // TODO: deal with remappings
 }

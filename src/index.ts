@@ -39,7 +39,7 @@ task('clone', 'Clone on-chain contract into current Hardhat project')
     let { address, destination, chain, etherscanApiKey, quiet } = args;
     if (!(chain instanceof Object)) chain = findChain(chain);
 
-    cloneContract(hre, chain, address, destination, {
+    await cloneContract(hre, chain, address, destination, {
       apiKey: etherscanApiKey,
       quiet,
     });
