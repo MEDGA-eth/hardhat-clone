@@ -9,6 +9,7 @@ describe('contract metadata data object', () => {
     );
     expect(data.contractName).toBe('PoolExercise');
     expect(data.optimizationUsed).toBe(true);
+    expect(data.isVerified).toBe(true);
   });
 });
 

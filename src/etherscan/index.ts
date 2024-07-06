@@ -71,7 +71,7 @@ export async function getCreation(
   chain: Chain,
   address: Address,
   apiKey?: string,
-) {
+): Promise<Creation> {
   const resp = await callEtherscanApi(chain, apiKey, 'contract', {
     action: 'getcontractcreation',
     contractaddresses: address,

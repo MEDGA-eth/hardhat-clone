@@ -1,3 +1,4 @@
+import assert from 'node:assert';
 import { Expose, Transform } from 'class-transformer';
 import {
   IsDataURI,
@@ -12,10 +13,10 @@ import {
   Max,
   Min,
 } from 'class-validator';
-import { assert } from 'console';
-import { CompilerInput } from 'hardhat/types';
-import { Abi, Address, ByteArray } from 'viem';
+import { CompilerInput, SolcConfig } from 'hardhat/types';
+import { Abi, Address, ByteArray, Hash } from 'viem';
 import { SourceTree, SourceTreeEntry } from '../source/tree';
+import { SemVer, parse as semverParse } from 'semver';
 
 /**
  * The contract metadata returned by Etherscan getsourcecode API.
@@ -127,17 +128,43 @@ export class Metadata {
   @Expose({ name: 'SwarmSource' })
   swarmSource?: string;
 
+  /**
+   * Whether the contract is verified on Etherscan.
+   */
   get isVerified(): boolean {
     return this.sourceCode !== '';
   }
 
+  /**
+   * Whether the contract is a Vyper contract.
+   */
   get isVyper(): boolean {
     return this.compilerVersion.startsWith('vyper:');
   }
 
+  /**
+   * Get the semantic version of the compiler used to compile the contract.
+   */
+  get semVersion(): SemVer {
+    let version = this.compilerVersion;
+    version = version.replace('vyper:', '');
+    version = version.replace('v', '');
+    let semVersion;
+    semVersion = semverParse(version);
+    if (!semVersion) {
+      version = version.replace('a', '-alpha.');
+      version = version.replace('b', '-beta.');
+      semVersion = semverParse(version);
+    }
+    if (!semVersion) {
+      throw new Error(`Invalid compiler version: ${this.compilerVersion}`);
+    }
+    return semVersion;
+  }
+
   get compilerInput(): CompilerInput {
-    assert(!this.isVerified, 'contract not verified');
-    assert(!this.isVyper, 'Vyper contracts are not supported');
+    assert.ok(this.isVerified, 'contract not verified');
+    assert.ok(!this.isVyper, 'Vyper contracts are not supported');
 
     const compilerInput: CompilerInput = {
       language: this.isVyper ? 'Vyper' : 'Solidity',
@@ -175,15 +202,45 @@ export class Metadata {
     return compilerInput;
   }
 
+  private _sourceTree: SourceTree | undefined;
+
   /**
    * Get the source tree from the contract metadata.
    */
   get sourceTree(): SourceTree {
+    if (this._sourceTree) {
+      return this._sourceTree;
+    }
     const compilerInput = this.compilerInput;
     const entries = Object.entries(compilerInput.sources).map(
       ([path, content]) => new SourceTreeEntry(path, content.content),
     );
-    return new SourceTree(...entries);
+    this._sourceTree = new SourceTree(...entries);
+    return this._sourceTree;
+  }
+
+  /**
+   * Get the main file of the contract in the source tree.
+   */
+  get mainFile(): string {
+    const tree = this.sourceTree;
+    for (const entry of tree.entries) {
+      // The current heuristic to find the main file of the contract is to look for the file that
+      // named in the contract name.
+      if (entry.path.endsWith(`${this.contractName}.sol`)) {
+        return entry.path;
+      }
+    }
+
+    // if not found, return the first file
+    return tree.entries[0].path;
+  }
+
+  get solcConfig(): SolcConfig {
+    return {
+      version: this.semVersion.toString(),
+      settings: this.compilerInput.settings,
+    };
   }
 }
 
@@ -193,19 +250,19 @@ export class Creation {
    */
   @IsString()
   @IsEthereumAddress()
-  contractAddress!: string;
+  contractAddress!: Address;
 
   /**
    * The address of the creator of the contract.
    */
   @IsString()
   @IsEthereumAddress()
-  contractCreator!: string;
+  contractCreator!: Address;
 
   /**
    * The transaction hash of the contract creation.
    */
   @IsString()
   @IsHash('sha256')
-  txHash!: string;
+  txHash!: Hash;
 }

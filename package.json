@@ -50,8 +50,6 @@
   },
   "packageManager": "pnpm@8.15.6+sha1.8105075ad0aa306138be128c017e9c41e28ecffa",
   "dependencies": {
-    "@babel/generator": "^7.24.7",
-    "@babel/parser": "^7.24.7",
     "axios": "^1.7.2",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.1",

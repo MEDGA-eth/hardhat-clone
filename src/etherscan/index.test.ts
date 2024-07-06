@@ -17,6 +17,7 @@ describe('etherscan API invocation', () => {
       test_api_key,
     );
     expect(meta.contractName).toBe('InterestRatePositionManager');
+    expect(meta.isVerified).toBe(true);
   });
 
   it('should throw an error when the contract address is invalid', async () => {

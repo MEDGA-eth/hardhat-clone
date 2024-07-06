@@ -11,7 +11,7 @@ task('clone', 'Clone on-chain contract into current Hardhat project')
   .addOptionalParam(
     'chain',
     `The chain ID where the contract is deployed. Supported: ${supportedChains
-      .map((chain) => chain.toString())
+      .map((chain) => `${chain.id}(${chain.name})`)
       .join(', ')}`,
     1,
     types.chain,
@@ -43,6 +43,8 @@ task('clone', 'Clone on-chain contract into current Hardhat project')
       apiKey: etherscanApiKey,
       quiet,
     });
+
+    console.log('Successfully cloned contract to', destination);
   });
 
 // extendConfig(
