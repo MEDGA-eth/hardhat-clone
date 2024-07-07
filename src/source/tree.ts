@@ -63,6 +63,8 @@ export class SourceTree {
 
   /**
    * Dump the source tree to a given directory.
+   * If the directory does not exist, it will be created.
+   * If the file already exists, it will be overridden.
    */
   dump(dir: string) {
     // create dir if not exist
@@ -72,5 +74,22 @@ export class SourceTree {
       console.debug(`Dumping ${entry.path} to ${dir}`);
       entry.dump(dir);
     }
+  }
+
+  /**
+   * Check if the dump operation will override existing files.
+   * @param dir The directory to dump the source tree.
+   * @returns A list of paths that will be overridden.
+   */
+  check_dump_override(dir: string): string[] {
+    const overrides: string[] = [];
+    if (fs.existsSync(dir)) {
+      for (const entry of this.entries) {
+        if (fs.existsSync(path.join(dir, entry.path))) {
+          overrides.push(path.join(dir, entry.path));
+        }
+      }
+    }
+    return overrides;
   }
 }

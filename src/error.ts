@@ -35,3 +35,12 @@ export class HttpError extends CloneError {
     super('HttpError', message, { cause, stack: new Error().stack });
   }
 }
+
+export class FileOverriddenError extends CloneError {
+  constructor(public files: string[], cause?: unknown) {
+    super('FileOverriddenError', 'files will be overridden', {
+      cause,
+      stack: new Error().stack,
+    });
+  }
+}

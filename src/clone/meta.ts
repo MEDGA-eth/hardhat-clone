@@ -17,6 +17,8 @@ import { Hash, Address, ByteArray } from 'viem';
  * The metadata of a cloned contract.
  */
 export class CloneMetadata {
+  static META_FILE = '.clone.meta';
+
   /**
    * The address of the contract.
    */
