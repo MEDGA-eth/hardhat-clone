@@ -77,7 +77,10 @@ export async function cloneContract(
   source_meta.sourceTree.dump(dumpDir);
 
   if (!apiKey) {
-    opts.quiet || console.log("Wait for 5 second before next request to Etherscan to avoid rate limiting");
+    opts.quiet ||
+      console.log(
+        'Wait for 5 second before next request to Etherscan to avoid rate limiting',
+      );
     await new Promise((resolve) => setTimeout(resolve, 5000));
   }
 
@@ -102,12 +105,21 @@ export async function cloneContract(
   let metas: CloneMetadata[] = [];
   if (fs.existsSync(metaFile)) {
     const metaRaw = JSON.parse(fs.readFileSync(metaFile, 'utf-8'));
-    assert.ok(metaRaw instanceof Array, 'Invalid metadata file, expected an array of CloneMetadata');
-    metas = metaRaw.map((meta: unknown) => plainToInstance(CloneMetadata, meta))
+    assert.ok(
+      metaRaw instanceof Array,
+      'Invalid metadata file, expected an array of CloneMetadata',
+    );
+    metas = metaRaw.map((meta: unknown) =>
+      plainToInstance(CloneMetadata, meta),
+    );
   }
   metas.push(cloneMetadata);
   fs.writeFileSync(
     path.join(hre.config.paths.root, CloneMetadata.META_FILE),
-    JSON.stringify(metas.map((meta) => instanceToPlain(meta)), null, 2),
+    JSON.stringify(
+      metas.map((meta) => instanceToPlain(meta)),
+      null,
+      2,
+    ),
   );
 }

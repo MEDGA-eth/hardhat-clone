@@ -1,10 +1,12 @@
-import { task } from 'hardhat/config';
-import * as types from './types';
-import { cloneContract } from './clone';
-
 // This import is needed to let the TypeScript compiler know that it should include your type
 // extensions in your npm package's types file.
 import './type-extensions';
+// This import is needed to extend Hardhat config with compiler settings of cloned contracts.
+import './config-extensions';
+
+import { task } from 'hardhat/config';
+import * as types from './types';
+import { cloneContract } from './clone';
 import { findChain, supportedChains } from './chain';
 
 task('clone', 'Clone on-chain contract into current Hardhat project')
