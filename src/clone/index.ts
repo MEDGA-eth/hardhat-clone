@@ -17,7 +17,7 @@ import { FileOverriddenError } from '../error';
  * @param hre The Hardhat runtime environment.
  * @param chain The chain to clone the contract from.
  * @param address The address of the contract to clone.
- * @param destination The path (relative to source folder of this project) where the contract should be cloned.
+ * @param destination The path (relative to root folder of this project) where the contract should be cloned.
  * @param opts Some other options.
  */
 export async function cloneContract(
@@ -61,15 +61,15 @@ export async function cloneContract(
 
   // dump source tree
   opts.quiet || console.debug('Dumping source tree...');
-  const dumpDir = path.join(hre.config.paths.sources, destination);
+  const dumpDir = path.join(hre.config.paths.root, destination);
   const overrides = source_meta.sourceTree.check_dump_override(dumpDir);
   if (overrides.length > 0) {
     if (!opts.quiet) {
       console.error(
-        `Existing contracts will be overridden. The overridden files in ${hre.config.paths.sources} are:`,
+        `Existing contracts will be overridden. The overridden files in ${hre.config.paths.root} are:`,
       );
       for (const file of overrides) {
-        console.error(`\t${path.relative(hre.config.paths.sources, file)}`);
+        console.error(`\t${path.relative(hre.config.paths.root, file)}`);
       }
     }
     throw new FileOverriddenError(overrides);
@@ -92,13 +92,14 @@ export async function cloneContract(
   opts.quiet || console.debug('Constructing CloneMetadata...');
   const cloneMetadata = new CloneMetadata();
   cloneMetadata.address = address;
-  cloneMetadata.path = path.join(destination, source_meta.mainFile);
+  cloneMetadata.folder = destination;
+  cloneMetadata.main_file = source_meta.mainFile;
   cloneMetadata.chainId = chain.id;
   cloneMetadata.creationTransaction = creation.txHash;
   cloneMetadata.deployer = creation.contractCreator;
   cloneMetadata.constructorArguments = source_meta.constructorArguments;
   cloneMetadata.solcConfig = source_meta.solcConfig;
-
+  cloneMetadata.clonedFiles = source_meta.sourceTree.all_files;
   // append to the metadata file
   opts.quiet || console.debug('Appending to clone metadata file...');
   const metaFile = path.join(hre.config.paths.root, CloneMetadata.META_FILE);

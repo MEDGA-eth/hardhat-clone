@@ -61,6 +61,10 @@ export class SourceTree {
     this.entries = entries;
   }
 
+  get all_files(): string[] {
+    return this.entries.map((entry) => entry.path);
+  }
+
   /**
    * Dump the source tree to a given directory.
    * If the directory does not exist, it will be created.

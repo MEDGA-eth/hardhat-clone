@@ -15,7 +15,7 @@ import {
 } from 'class-validator';
 import { CompilerInput, SolcConfig } from 'hardhat/types';
 import { Abi, Address, ByteArray, Hash } from 'viem';
-import { SourceTree, SourceTreeEntry } from '../source/tree';
+import { SourceTree, SourceTreeEntry } from '../source';
 import { SemVer, parse as semverParse } from 'semver';
 
 /**
@@ -69,6 +69,7 @@ export class Metadata {
   @IsInt()
   @Min(0)
   @Expose({ name: 'Runs' })
+  @Transform(({ value }) => parseInt(value))
   runs!: number;
 
   /**
@@ -183,7 +184,7 @@ export class Metadata {
     // We have two possibilities now: (https://github.com/TucksonDev/hardhat-etherscan-contract-cloner/blob/69eee06686bf32dd46a28e5650d310117d8bb4c1/src/task.ts#L129-L131)
     //  1.- Code is a single contract: The whole code is returned in this "SourceCode" field
     //  2.- Code is split into several imported contracts: "SourceCode" is an bad-formatted json object with the different pieces of code
-    if (sourceCodeJson !== '{') {
+    if (!sourceCodeJson.startsWith('{')) {
       // Code is a single contract
       compilerInput.sources[`${this.contractName}.sol`] = {
         content: this.sourceCode,
@@ -193,7 +194,7 @@ export class Metadata {
 
       // sourceCode is not well formatted. It starts with 2 '{' and ends with 2 '}', breaking thus
       // the JSON object. To avoid errors, we will remove those 2 characters.
-      sourceCodeJson = sourceCodeJson.substring(1, sourceCodeJson.length - 2);
+      sourceCodeJson = sourceCodeJson.substring(1, sourceCodeJson.length - 1);
       const sourceInfo = JSON.parse(sourceCodeJson);
       compilerInput.sources = sourceInfo.sources;
       compilerInput.settings = sourceInfo.settings;

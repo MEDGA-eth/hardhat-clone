@@ -9,6 +9,7 @@ import {
   ValidationOptions,
   isSemVer,
   registerDecorator,
+  IsArray,
 } from 'class-validator';
 import { SolcConfig } from 'hardhat/types';
 import { Hash, Address, ByteArray } from 'viem';
@@ -27,11 +28,17 @@ export class CloneMetadata {
   address!: string;
 
   /**
-   * The path to the source file that contains the contract declaration.
-   * The path is relative to the source folder of the project.
+   * The folder (relative to the root of this project) in which the contract is cloned.
    */
   @IsString()
-  path!: string;
+  folder!: string;
+
+  /**
+   * The path to the source file that contains the contract declaration.
+   * The path is relative to this.folder.
+   */
+  @IsString()
+  main_file!: string;
 
   /**
    * The chain ID where the contract is deployed.
@@ -66,6 +73,12 @@ export class CloneMetadata {
   @IsObject()
   @IsSolcConfig()
   solcConfig!: SolcConfig;
+
+  /**
+   * A list of all file paths (relative to this.folder) that are cloned.
+   */
+  @IsArray()
+  clonedFiles!: string[];
 }
 
 /**
@@ -92,9 +105,7 @@ function IsSolcConfig(validationOptions?: ValidationOptions) {
           // - if it has a settings field, it should be an object
           if (typeof value !== 'object') return false;
           if (!value.version || !isSemVer(value.version)) return false;
-          if (value.settings && typeof value.settings !== 'object')
-            return false;
-          return true;
+          return !(value.settings && typeof value.settings !== 'object');
         },
       },
     });
