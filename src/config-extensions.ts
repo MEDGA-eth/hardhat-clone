@@ -25,18 +25,16 @@ extendConfig((config: HardhatConfig) => {
   // state for its type, including its extensions. For example, you may
   // need to apply a default value.
 
-  console.log('Hardhat-clone is extending config');
-
   const cloneMetas = loadCloneMetaSet(config);
 
   // We need to override SolcConfig for the cloned contracts.
   for (const cloneMeta of cloneMetas) {
-    config.solidity.overrides[
-      path.join(
-        path.relative(config.paths.root, config.paths.sources),
-        cloneMeta.main_file,
-      )
-    ] = cloneMeta.solcConfig;
+    for (const clonedFile of cloneMeta.clonedFiles) {
+      // we force the solc config for every cloned files (both their original source names and remapped source names).
+      config.solidity.overrides[path.join(cloneMeta.folder, clonedFile)] =
+        cloneMeta.solcConfig;
+      config.solidity.overrides[clonedFile] = cloneMeta.solcConfig;
+    }
   }
 });
 
@@ -57,10 +55,9 @@ function loadCloneMetaSet(config: HardhatConfig): CloneMetadata[] {
     metadataRaw instanceof Array,
     'Invalid metadata file, expected an array of CloneMetadata',
   );
-  const cloneMetas: CloneMetadata[] = metadataRaw.map((meta: unknown) =>
+  return metadataRaw.map((meta: unknown) =>
     plainToInstance(CloneMetadata, meta),
   );
-  return cloneMetas;
 }
 
 subtask(TASK_COMPILE_GET_REMAPPINGS).setAction(

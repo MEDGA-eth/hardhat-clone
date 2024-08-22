@@ -191,13 +191,16 @@ export class Metadata {
       };
     } else {
       // Code is split into several imported contracts
-
-      // sourceCode is not well formatted. It starts with 2 '{' and ends with 2 '}', breaking thus
-      // the JSON object. To avoid errors, we will remove those 2 characters.
-      sourceCodeJson = sourceCodeJson.substring(1, sourceCodeJson.length - 1);
-      const sourceInfo = JSON.parse(sourceCodeJson);
-      compilerInput.sources = sourceInfo.sources;
-      compilerInput.settings = sourceInfo.settings;
+      try {
+        compilerInput.sources = JSON.parse(sourceCodeJson);
+      } catch (_) {
+        // sourceCode is not well formatted. It starts with 2 '{' and ends with 2 '}', breaking thus
+        // the JSON object. To avoid errors, we will remove those 2 characters.
+        sourceCodeJson = sourceCodeJson.substring(1, sourceCodeJson.length - 1);
+        const sourceInfo = JSON.parse(sourceCodeJson);
+        compilerInput.sources = sourceInfo.sources;
+        compilerInput.settings = sourceInfo.settings;
+      }
     }
 
     return compilerInput;
@@ -227,8 +230,12 @@ export class Metadata {
     const tree = this.sourceTree;
     for (const entry of tree.entries) {
       // The current heuristic to find the main file of the contract is to look for the file that
-      // named in the contract name.
-      if (entry.path.endsWith(`${this.contractName}.sol`)) {
+      // contains the string "contract ${contractName} "
+      if (
+        entry.content.match(
+          new RegExp(`contract\\s+${this.contractName}[\\s|{]`),
+        )
+      ) {
         return entry.path;
       }
     }
