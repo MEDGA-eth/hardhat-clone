@@ -13,6 +13,14 @@ export abstract class CloneError extends Error {
     this.stack = options?.stack ?? new Error().stack;
     this.cause = options?.cause;
   }
+
+  toString(): string {
+    return `${this.message}
+Cause:
+${this.cause}
+Stack:
+${this.stack}`;
+  }
 }
 
 export class NotVerifiedError extends CloneError {
@@ -39,6 +47,15 @@ export class HttpError extends CloneError {
 export class FileOverriddenError extends CloneError {
   constructor(public files: string[], cause?: unknown) {
     super('FileOverriddenError', 'files will be overridden', {
+      cause,
+      stack: new Error().stack,
+    });
+  }
+}
+
+export class UnsupportedError extends CloneError {
+  constructor(feature: string, cause?: unknown) {
+    super('UnsupportedError', `Unsupported: ${feature}`, {
       cause,
       stack: new Error().stack,
     });

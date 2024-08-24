@@ -1,7 +1,7 @@
 import { Chain } from 'viem';
-import { mainnet } from 'viem/chains';
+import * as chains from 'viem/chains';
 
-export const supportedChains: Chain[] = [mainnet];
+export const supportedChains: Chain[] = Object.values(chains);
 
 /**
  * Find a chain by its ID.

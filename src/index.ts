@@ -7,18 +7,23 @@ import './config-extensions';
 import { task } from 'hardhat/config';
 import * as types from './types';
 import { cloneContract } from './clone';
-import { findChain, supportedChains } from './chain';
+import { findChain } from './chain';
+import { CloneError } from './error';
 
 task('clone', 'Clone on-chain contract into current Hardhat project')
   .addOptionalParam(
     'chain',
-    `The chain ID where the contract is deployed. Supported: ${supportedChains
-      .map((chain) => `${chain.id}(${chain.name})`)
-      .join(', ')}`,
+    `The chain ID where the contract is deployed. This option is used to determine Etherscan API endpoint. List of supported chains: https://github.com/wevm/viem/blob/main/src/chains/index.ts`,
     1,
     types.chain,
   )
   .addOptionalParam(
+    'etherscanApiUrl',
+    'The Etherscan API endpoint URL. Default to the mainnet API of the chain specified as --chain.',
+    undefined,
+    types.url,
+  )
+  .addParam(
     'etherscanApiKey',
     'The Etherscan API key (or equivalent) to use to fetch the contract',
   )
@@ -41,10 +46,20 @@ task('clone', 'Clone on-chain contract into current Hardhat project')
     let { address, destination, chain, etherscanApiKey, quiet } = args;
     if (!(chain instanceof Object)) chain = findChain(chain);
 
-    await cloneContract(hre, chain, address, destination, {
-      apiKey: etherscanApiKey,
-      quiet,
-    });
-
-    console.log('Successfully cloned contract to', destination);
+    try {
+      await cloneContract(hre, chain, address, destination, {
+        apiKey: etherscanApiKey,
+        quiet,
+      });
+      quiet || console.log('Successfully cloned contract to', destination);
+    } catch (e) {
+      const err = e as CloneError;
+      quiet ||
+        console.error(
+          `Failed to clone contract due to error: ${
+            err.name
+          }\n${err.toString()}`,
+        );
+      process.exit(1);
+    }
   });

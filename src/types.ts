@@ -47,4 +47,16 @@ export const chain: CLIArgumentType<Chain> = {
   validate: () => {},
 };
 
+export const url: CLIArgumentType<string> = {
+  parse: (_argName, strValue) => strValue,
+  name: 'url',
+  validate: (_argName: string, value: string): void => {
+    try {
+      new URL(value);
+    } catch (e) {
+      throw new Error(`Invalid URL: ${e}`);
+    }
+  },
+};
+
 export const string = types.string;

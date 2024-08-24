@@ -9,7 +9,7 @@ import { Address, Chain } from 'viem';
 import { CloneMetadata } from './meta';
 import { instanceToPlain, plainToInstance } from 'class-transformer';
 import assert from 'node:assert';
-import { FileOverriddenError } from '../error';
+import { FileOverriddenError, UnsupportedError } from '../error';
 
 /**
  * Clone a contract from a chain into the current project.
@@ -30,6 +30,25 @@ export async function cloneContract(
     quiet?: boolean; // Do not log anything
   },
 ) {
+  // load clone metadata file
+  const metaFile = path.join(hre.config.paths.root, CloneMetadata.META_FILE);
+  let metas: CloneMetadata[] = [];
+  if (fs.existsSync(metaFile)) {
+    const metaRaw = JSON.parse(fs.readFileSync(metaFile, 'utf-8'));
+    assert.ok(
+      metaRaw instanceof Array,
+      'Invalid metadata file, expected an array of CloneMetadata',
+    );
+    metas = metaRaw.map((meta: unknown) =>
+      plainToInstance(CloneMetadata, meta),
+    );
+  }
+  if (metas.length >= 1) {
+    throw new UnsupportedError(
+      'cloning multiple contracts in the same project is not yet supported',
+    );
+  }
+
   // Log the cloning operation
   opts.quiet ||
     console.info(
@@ -53,7 +72,7 @@ export async function cloneContract(
   }
 
   // check API KEY
-  !apiKey && console.debug('No API key provided');
+  !apiKey && !opts.quiet && console.debug('No API key provided');
 
   // fetch source from Etherscan
   opts.quiet || console.debug('Fetching source code for', address);
@@ -118,18 +137,6 @@ export async function cloneContract(
   cloneMetadata.clonedFiles = source_meta.sourceTree.allFiles;
   // append to the metadata file
   opts.quiet || console.debug('Appending to clone metadata file...');
-  const metaFile = path.join(hre.config.paths.root, CloneMetadata.META_FILE);
-  let metas: CloneMetadata[] = [];
-  if (fs.existsSync(metaFile)) {
-    const metaRaw = JSON.parse(fs.readFileSync(metaFile, 'utf-8'));
-    assert.ok(
-      metaRaw instanceof Array,
-      'Invalid metadata file, expected an array of CloneMetadata',
-    );
-    metas = metaRaw.map((meta: unknown) =>
-      plainToInstance(CloneMetadata, meta),
-    );
-  }
   metas.push(cloneMetadata);
   fs.writeFileSync(
     path.join(hre.config.paths.root, CloneMetadata.META_FILE),
