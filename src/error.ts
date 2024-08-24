@@ -44,9 +44,9 @@ export class HttpError extends CloneError {
   }
 }
 
-export class FileOverriddenError extends CloneError {
+export class FileCollisionError extends CloneError {
   constructor(public files: string[], cause?: unknown) {
-    super('FileOverriddenError', 'files will be overridden', {
+    super('FileOverriddenError', `files will be overridden: ${files}`, {
       cause,
       stack: new Error().stack,
     });

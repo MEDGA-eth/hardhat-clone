@@ -3,6 +3,8 @@ import path from 'node:path';
 import os from 'node:os';
 import child_process from 'node:child_process';
 
+export const TIMEOUT = 60 * 1000;
+
 export const ETHERSCAN_API_KEYS = [
   'MCAUM7WPE9XP5UQMZPCKIBUJHPM1C24FP6',
   'QYKNT5RHASZ7PGQE68FNQWH99IXVTVVD2I',

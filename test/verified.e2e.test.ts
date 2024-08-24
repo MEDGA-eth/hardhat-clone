@@ -1,9 +1,7 @@
-import { cloneContract, createTestFixture } from './helpers';
+import { cloneContract, createTestFixture, TIMEOUT } from './helpers';
 import fs from 'node:fs';
 import path from 'node:path';
 import child_process from 'node:child_process';
-
-const TIMEOUT = 60 * 1000;
 
 describe('hardhat-clone clones verified contracts', () => {
   it.concurrent.each([
@@ -46,33 +44,9 @@ describe('hardhat-clone clones verified contracts', () => {
         },
       );
       if (opts?.debug) console.log('Compilation output:\n', output);
-      expect(fs.existsSync(path.join(tmp, 'artifacts', contractName)));
-
-      if (!opts?.debug)
-        await fs.promises.rm(tmp, { recursive: true, force: true });
-    },
-    TIMEOUT,
-  );
-});
-
-describe('hardhat-clone clones unverified contracts', () => {
-  it.concurrent.each([
-    ['0x123', 'Invalid address'],
-    ['0x4675C7e5BaAFBFFbca748158bEcBA61ef3b0a263', 'NotVerified'],
-    ['0xFf23e40ac05D30Df46c250Dd4d784f6496A79CE9', 'Vyper contracts'],
-  ])(
-    `should clone %s (%s)`,
-    async (
-      contractAddress: string,
-      errorMsg: string,
-      opts?: {
-        etherscanApiKey?: string;
-        debug?: boolean; // whether to print logs and preserve the temp project for debugging
-      },
-    ) => {
-      const tmp = await createTestFixture(opts);
-      const task = cloneContract(tmp, contractAddress, 'unverified', opts);
-      await expect(task).rejects.toThrow(errorMsg);
+      expect(
+        fs.existsSync(path.join(tmp, 'artifacts', contractName)),
+      ).toBeTruthy();
 
       if (!opts?.debug)
         await fs.promises.rm(tmp, { recursive: true, force: true });

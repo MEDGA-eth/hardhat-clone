@@ -9,7 +9,7 @@ import { Address, Chain } from 'viem';
 import { CloneMetadata } from './meta';
 import { instanceToPlain, plainToInstance } from 'class-transformer';
 import assert from 'node:assert';
-import { FileOverriddenError, UnsupportedError } from '../error';
+import { FileCollisionError, UnsupportedError } from '../error';
 
 /**
  * Clone a contract from a chain into the current project.
@@ -43,9 +43,10 @@ export async function cloneContract(
       plainToInstance(CloneMetadata, meta),
     );
   }
-  if (metas.length >= 1) {
+
+  if (destination === hre.config.paths.sources) {
     throw new UnsupportedError(
-      'cloning multiple contracts in the same project is not yet supported',
+      'Cannot clone contracts into Hardhat source folder',
     );
   }
 
@@ -91,7 +92,7 @@ export async function cloneContract(
         console.error(`\t${path.relative(hre.config.paths.root, file)}`);
       }
     }
-    throw new FileOverriddenError(overrides);
+    throw new FileCollisionError(overrides);
   }
   source_meta.sourceTree.dump(dumpDir);
 

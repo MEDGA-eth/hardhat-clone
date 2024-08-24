@@ -28,9 +28,9 @@ extendConfig((config: HardhatConfig) => {
   const cloneMetas = loadCloneMetaSet(config);
 
   // We need to override SolcConfig for the cloned contracts.
-  const allCompilerVersions: string[] = [];
   for (const cloneMeta of cloneMetas) {
     for (const clonedFile of Object.values(cloneMeta.clonedFiles)) {
+      const remappings = getRemappings(cloneMeta);
       const solcConfig = cloneMeta.solcConfig;
       // delete remappings since hardhat currently does not support solc remappings
       // the remappings should have been process in the import resolution phase.
@@ -39,11 +39,12 @@ extendConfig((config: HardhatConfig) => {
       config.solidity.overrides[
         path.join(cloneMeta.folder, clonedFile)
       ] = solcConfig;
-      allCompilerVersions.push(solcConfig.version);
+      for (const from of Object.keys(remappings)) {
+        if (from.endsWith('.sol')) {
+          config.solidity.overrides[from] = solcConfig;
+        }
+      }
     }
-  }
-  for (const compilerVersion of allCompilerVersions) {
-    config.solidity.compilers.push({ version: compilerVersion, settings: {} });
   }
 });
 
@@ -69,27 +70,57 @@ function loadCloneMetaSet(config: HardhatConfig): CloneMetadata[] {
   );
 }
 
-subtask(TASK_COMPILE_GET_REMAPPINGS).setAction(
-  async (_, { config }): Promise<Record<string, string>> => {
-    const remappings: Record<string, string> = {};
+/**
+ * Get remappings of a cloned contract.
+ * All the remappings returned are guaranteed to be file-to-file remappings.
+ */
+function getRemappings(meta: CloneMetadata): Record<string, string> {
+  const remappings: Record<string, string> = {};
 
-    const cloneMetas = loadCloneMetaSet(config);
-    for (const meta of cloneMetas) {
-      // original remappings of the cloned contract
-      for (const remapping of meta.solcConfig.settings.remappings ?? []) {
-        const [from, to] = (remapping as string).split('=');
-        remappings[from] = path.join(meta.folder, to);
-      }
-
-      for (const [sourceName, actualPath] of Object.entries(meta.clonedFiles)) {
-        remappings[sourceName] = path.join(meta.folder, actualPath);
+  // original remappings of the cloned contract
+  for (const remapping of meta.solcConfig.settings.remappings ?? []) {
+    const [from, to] = (remapping as string).split('=');
+    if (from === to) {
+      continue;
+    }
+    for (const actualPath of Object.values(meta.clonedFiles)) {
+      if (actualPath.startsWith(to)) {
+        const suffix = actualPath.substring(to.length);
+        remappings[from + suffix] = path.join(meta.folder, actualPath);
       }
     }
+  }
 
+  for (const [sourceName, actualPath] of Object.entries(meta.clonedFiles)) {
+    remappings[sourceName] = path.join(meta.folder, actualPath);
+  }
+
+  return remappings;
+}
+
+/**
+ * This task returns a Record<string, string> representing remappings to be used
+ * by the resolver.
+ */
+subtask(TASK_COMPILE_GET_REMAPPINGS).setAction(
+  async (_, { config }): Promise<Record<string, string>> => {
+    const remappings = {};
+    const cloneMetas = loadCloneMetaSet(config);
+    for (const meta of cloneMetas) {
+      Object.assign(remappings, getRemappings(meta));
+    }
     return remappings;
   },
 );
 
+/**
+ * Returns a list of absolute paths to all the solidity files in the project.
+ * This list doesn't include dependencies, for example solidity files inside
+ * node_modules.
+ *
+ * This is the right task to override to change how the solidity files of the
+ * project are obtained.
+ */
 subtask(TASK_COMPILE_SOLIDITY_GET_SOURCE_PATHS)
   .addOptionalParam('sp', undefined, undefined, types.string)
   .setAction(
