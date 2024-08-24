@@ -99,7 +99,23 @@ export async function cloneContract(
   cloneMetadata.deployer = creation.contractCreator;
   cloneMetadata.constructorArguments = source_meta.constructorArguments;
   cloneMetadata.solcConfig = source_meta.solcConfig;
-  cloneMetadata.clonedFiles = source_meta.sourceTree.all_files;
+  // Source tree dumping renames "node_modules" to "node-modules", so we need to regulate the original remappings as well
+  cloneMetadata.solcConfig.settings.remappings = [];
+  for (const remap of source_meta.solcConfig.settings.remappings ?? []) {
+    // eslint-disable-next-line prefer-const
+    let [from, to] = (remap as string).split('=');
+    // apply the remappings generated during dumping source map
+    for (const [from_prefix, to_prefix] of Object.entries(
+      source_meta.sourceTree.remappings,
+    )) {
+      if (to.startsWith(from_prefix)) {
+        to = to.replace(from_prefix, to_prefix);
+        break;
+      }
+    }
+    cloneMetadata.solcConfig.settings.remappings.push(`${from}=${to}`);
+  }
+  cloneMetadata.clonedFiles = source_meta.sourceTree.allFiles;
   // append to the metadata file
   opts.quiet || console.debug('Appending to clone metadata file...');
   const metaFile = path.join(hre.config.paths.root, CloneMetadata.META_FILE);

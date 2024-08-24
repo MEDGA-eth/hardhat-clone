@@ -1,0 +1,11 @@
+{
+  "name": "hardhat-project",
+  "version": "1.0.0",
+  "devDependencies": {
+    "hardhat": ">=2",
+    "@medga/hardhat-clone": "link:../../..",
+    "typescript": "^5.5.4",
+    "ts-node": "^10.9.2"
+  },
+  "packageManager": "pnpm@8.15.6+sha1.8105075ad0aa306138be128c017e9c41e28ecffa"
+}

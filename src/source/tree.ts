@@ -6,22 +6,31 @@ import fs from 'node:fs';
  */
 export class SourceTreeEntry {
   /**
+   * The original source name
+   */
+  sourceName: string;
+
+  /**
    * The sanitized path of the entry.
    */
   path: string;
+
   /**
    * The content of the entry.
    */
   content: string;
+
   /**
    * We may do some sanitization on the path, such as removing leading slashes.
    * This remappings record the original path to the sanitized path.
    */
   remappings: Record<string, string>;
 
-  constructor(path: string, content: string) {
+  constructor(sourceName: string, content: string) {
+    this.sourceName = sourceName;
     this.content = content;
     this.remappings = {};
+    let path: string = sourceName;
     // sanitize path
     // 1. remove leading slash, making it relative
     if (path.startsWith('/')) {
@@ -35,6 +44,16 @@ export class SourceTreeEntry {
       this.remappings[path] = sol_path;
       path = sol_path;
     }
+    // 3. remap the prefix until "node_modules" to "node-modules"
+    let idx = path.lastIndexOf('node_modules/');
+    if (idx >= 0) {
+      idx += 13;
+      const from_prefix = path.substring(0, idx);
+      const to_prefix = from_prefix.replace('node_modules/', 'node-modules/');
+      this.remappings[from_prefix] = to_prefix;
+      path = path.replace(from_prefix, to_prefix);
+    }
+
     this.path = path;
   }
 
@@ -61,8 +80,23 @@ export class SourceTree {
     this.entries = entries;
   }
 
-  get all_files(): string[] {
-    return this.entries.map((entry) => entry.path);
+  /**
+   * All files (original source name => actual path)
+   */
+  get allFiles(): Record<string, string> {
+    const relocations: Record<string, string> = {};
+    for (const entry of this.entries) {
+      relocations[entry.sourceName] = entry.path;
+    }
+    return relocations;
+  }
+
+  get remappings(): Record<string, string> {
+    const remappings = {};
+    for (const entry of this.entries) {
+      Object.assign(remappings, entry.remappings);
+    }
+    return remappings;
   }
 
   /**

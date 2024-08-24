@@ -1,0 +1,5 @@
+*/
+*
+!hardhat.config.ts
+!.gitignore
+!package.json

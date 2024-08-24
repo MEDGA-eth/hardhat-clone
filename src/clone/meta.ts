@@ -75,10 +75,11 @@ export class CloneMetadata {
   solcConfig!: SolcConfig;
 
   /**
-   * A list of all file paths (relative to this.folder) that are cloned.
+   * A list of file whose actual path (relative to this.folder) is different from original source name.
+   * original source name => new relative path
    */
   @IsArray()
-  clonedFiles!: string[];
+  clonedFiles!: Record<string, string>;
 }
 
 /**

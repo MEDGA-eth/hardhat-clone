@@ -28,13 +28,22 @@ extendConfig((config: HardhatConfig) => {
   const cloneMetas = loadCloneMetaSet(config);
 
   // We need to override SolcConfig for the cloned contracts.
+  const allCompilerVersions: string[] = [];
   for (const cloneMeta of cloneMetas) {
-    for (const clonedFile of cloneMeta.clonedFiles) {
+    for (const clonedFile of Object.values(cloneMeta.clonedFiles)) {
+      const solcConfig = cloneMeta.solcConfig;
+      // delete remappings since hardhat currently does not support solc remappings
+      // the remappings should have been process in the import resolution phase.
+      delete solcConfig.settings.remappings;
       // we force the solc config for every cloned files (both their original source names and remapped source names).
-      config.solidity.overrides[path.join(cloneMeta.folder, clonedFile)] =
-        cloneMeta.solcConfig;
-      config.solidity.overrides[clonedFile] = cloneMeta.solcConfig;
+      config.solidity.overrides[
+        path.join(cloneMeta.folder, clonedFile)
+      ] = solcConfig;
+      allCompilerVersions.push(solcConfig.version);
     }
+  }
+  for (const compilerVersion of allCompilerVersions) {
+    config.solidity.compilers.push({ version: compilerVersion, settings: {} });
   }
 });
 
@@ -62,13 +71,18 @@ function loadCloneMetaSet(config: HardhatConfig): CloneMetadata[] {
 
 subtask(TASK_COMPILE_GET_REMAPPINGS).setAction(
   async (_, { config }): Promise<Record<string, string>> => {
-    console.log('Hardhat-clone is extending overriding remapping subtask');
     const remappings: Record<string, string> = {};
 
     const cloneMetas = loadCloneMetaSet(config);
     for (const meta of cloneMetas) {
-      for (const clonedFile of meta.clonedFiles) {
-        remappings[clonedFile] = path.join(meta.folder, clonedFile);
+      // original remappings of the cloned contract
+      for (const remapping of meta.solcConfig.settings.remappings ?? []) {
+        const [from, to] = (remapping as string).split('=');
+        remappings[from] = path.join(meta.folder, to);
+      }
+
+      for (const [sourceName, actualPath] of Object.entries(meta.clonedFiles)) {
+        remappings[sourceName] = path.join(meta.folder, actualPath);
       }
     }
 
