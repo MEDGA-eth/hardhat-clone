@@ -17,12 +17,6 @@ task('clone', 'Clone on-chain contract into current Hardhat project')
     1,
     types.chain,
   )
-  .addOptionalParam(
-    'etherscanApiUrl',
-    'The Etherscan API endpoint URL. Default to the mainnet API of the chain specified as --chain.',
-    undefined,
-    types.url,
-  )
   .addParam(
     'etherscanApiKey',
     'The Etherscan API key (or equivalent) to use to fetch the contract',
