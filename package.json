@@ -18,7 +18,7 @@
   "scripts": {
     "lint:fix": "prettier --write 'src/**/*.{js,ts}' 'test/**/*.{js,ts}' && eslint --fix .",
     "lint": "eslint .",
-    "build": "tsc --project tsconfig.build.json",
+    "build": "tsc",
     "watch": "tsc -w",
     "test": "jest"
   },
