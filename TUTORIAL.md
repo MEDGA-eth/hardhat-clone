@@ -182,7 +182,9 @@ Compiled 2 Solidity files successfully (evm targets: unknown evm version for sol
   1 passing (48ms)
 ```
 
+The Hardhat project used in this tutorial can be found in [examples/clone_and_import](./examples/clone_and_import).
 Have fun!
+
 
 ##### Want to know how @medga/hardhat-clone makes this possible? 
 

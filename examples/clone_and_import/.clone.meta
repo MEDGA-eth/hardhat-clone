@@ -1,0 +1,31 @@
+[
+  {
+    "address": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+    "folder": "WETH",
+    "main_file": "WETH9.sol",
+    "chainId": 1,
+    "creationTransaction": "0xb95343413e459a0f97461812111254163ae53467855c0d73e0f1e7c5b8442fa3",
+    "deployer": "0x4f26ffbe5f04ed43630fdc30a87638d53d0b0876",
+    "constructorArguments": "",
+    "solcConfig": {
+      "version": "0.4.19",
+      "settings": {
+        "optimizer": {
+          "enabled": false,
+          "runs": 200
+        },
+        "outputSelection": {
+          "*": {
+            "*": [
+              "*"
+            ]
+          }
+        },
+        "remappings": []
+      }
+    },
+    "clonedFiles": {
+      "WETH9.sol": "WETH9.sol"
+    }
+  }
+]
