@@ -4,7 +4,7 @@
 
 ## Clone Metadata
 
-Each cloned contract will generate a `CloneMetadats` stored in `.clone.meta` file in the project root.
+Each cloned contract will generate a `CloneMetadata` stored in `.clone.meta` file in the project root.
 Clone metadata contains:
 - The contract name
 - On-chain address

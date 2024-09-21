@@ -188,5 +188,5 @@ Have fun!
 
 ##### Want to know how @medga/hardhat-clone makes this possible? 
 
-See our technical design: [./DESIGN.md].
+See our technical design: [DESIGN.md](./DESIGN.md).
 
