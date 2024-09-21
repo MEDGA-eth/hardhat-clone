@@ -1,6 +1,6 @@
 {
   "name": "@medga/hardhat-clone",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Clone an on-chain contract into Hardhat project",
   "repository": "https://github.com/medga-eth/hardhat-clone",
   "homepage": "https://medga.org",
